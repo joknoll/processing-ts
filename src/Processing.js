@@ -150,9 +150,9 @@ export default function (options, undef) {
     }
 
     function detachEventHandlersByType(element, types) {
-      Object.keys(eventHandlers).forEach(function (eventHandler) {
+      eventHandlers.forEach(function (eventHandler) {
         if (types.indexOf(eventHandler.type) > -1 && eventHandler.elem == element) {
-          detachEventHandler(eventHandler.type);
+          detachEventHandler(eventHandler);
         }
       });
     }
