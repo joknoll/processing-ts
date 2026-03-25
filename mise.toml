@@ -9,7 +9,10 @@ includes = ["tasks"]
 
 [tasks.clean]
 description = "Clean project"
-run = ["rm -rf node_modules dist playground/node_modules playground/build"]
+run = [
+  "rm -rf node_modules dist .pnpm-store .vitest-attachments",
+  "rm -rf playground/node_modules playground/build",
+]
 
 [tasks.play]
 description = "Run playground"
@@ -22,4 +25,8 @@ run = [
 
 [tasks.setup]
 description = "Install project dependencies and browser test runtime"
-run = ["pnpm install", "playwright install chromium"]
+run = [
+  "vp install",
+  "vp pack",
+  "playwright install chromium",
+]

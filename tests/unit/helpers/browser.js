@@ -1,4 +1,4 @@
-import Browser from "../../../lib/Browser.js";
+import { getSharedTestBrowser } from "./test-browser.js";
 
 function instrumentEventTarget(target) {
   const original = {
@@ -54,6 +54,7 @@ function createInstrumentedCanvas(baseCanvas) {
 }
 
 function instrumentBrowser() {
+  const Browser = getSharedTestBrowser();
   const documentState = instrumentEventTarget(Browser.document);
   const windowState = instrumentEventTarget(Browser.window);
   const originalCreateElement = Browser.document.createElement;

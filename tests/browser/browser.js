@@ -1,3 +1,5 @@
+import { afterEach, beforeEach } from "vite-plus/test";
+
 export async function loadProcessingBundle() {
   if (window.Processing) {
     return window.Processing;
@@ -33,6 +35,18 @@ export async function loadTextFixture(relativePath) {
 
 export async function loadRefFixture(name) {
   return loadTextFixture(`tests/ref/${name}`);
+}
+
+export function setupProcessingBrowserSuite() {
+  beforeEach(async () => {
+    resetBrowserDom();
+    await loadProcessingBundle();
+  });
+
+  afterEach(() => {
+    cleanupProcessingInstances();
+    resetBrowserDom();
+  });
 }
 
 export function createCanvas(options = {}) {
@@ -102,6 +116,23 @@ export async function mountProcessingSketch(options = {}) {
   }
 
   return { canvas, sketch, source: sketchSource };
+}
+
+export async function mountInlineProcessingSketch(source, options = {}) {
+  return mountProcessingSketch({
+    ...options,
+    source,
+  });
+}
+
+export function appendDeclarativeProcessingScript(options) {
+  const { targetId, source } = options;
+  const script = document.createElement("script");
+  script.type = "text/processing";
+  script.setAttribute("data-processing-target", targetId);
+  script.textContent = source;
+  document.body.appendChild(script);
+  return script;
 }
 
 export function cleanupProcessingInstances() {

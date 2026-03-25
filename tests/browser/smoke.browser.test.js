@@ -1,25 +1,18 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import {
-  cleanupProcessingInstances,
+  appendDeclarativeProcessingScript,
   createCanvas,
   loadProcessingBundle,
   loadTextFixture,
+  mountInlineProcessingSketch,
   readCanvasPixel,
-  resetBrowserDom,
+  setupProcessingBrowserSuite,
   waitForAnimationFrame,
 } from "./browser.js";
 
 describe("browser bundle smoke tests", () => {
-  beforeEach(async () => {
-    resetBrowserDom();
-    await loadProcessingBundle();
-  });
-
-  afterEach(() => {
-    cleanupProcessingInstances();
-    resetBrowserDom();
-  });
+  setupProcessingBrowserSuite();
 
   test("exposes the Processing global from the built bundle", () => {
     expect(window.Processing).toBeTypeOf("function");
@@ -39,10 +32,7 @@ describe("browser bundle smoke tests", () => {
   });
 
   test("instantiates a sketch and renders to canvas", async () => {
-    const canvas = createCanvas();
-
-    new window.Processing(
-      canvas,
+    const { canvas } = await mountInlineProcessingSketch(
       `
         void setup() {
           size(12, 12);
@@ -50,9 +40,10 @@ describe("browser bundle smoke tests", () => {
           noLoop();
         }
       `,
+      {
+        waitForFrames: 1,
+      },
     );
-
-    await waitForAnimationFrame();
 
     expect(canvas.width).toBe(12);
     expect(canvas.height).toBe(12);
@@ -75,17 +66,16 @@ describe("browser bundle smoke tests", () => {
     canvas.id = "auto-target";
     document.body.appendChild(canvas);
 
-    const script = document.createElement("script");
-    script.type = "text/processing";
-    script.setAttribute("data-processing-target", "auto-target");
-    script.textContent = `
+    appendDeclarativeProcessingScript({
+      targetId: "auto-target",
+      source: `
       void setup() {
         size(14, 14);
         background(0, 255, 0);
         noLoop();
       }
-    `;
-    document.body.appendChild(script);
+    `,
+    });
 
     window.Processing.reload();
     await waitForAnimationFrame();

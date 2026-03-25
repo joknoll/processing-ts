@@ -1,4 +1,4 @@
-import { playwright } from "@vitest/browser-playwright";
+import { playwright } from "vite-plus/test/browser-playwright";
 import { defineConfig, defineProject } from "vite-plus";
 
 export default defineConfig({
@@ -41,27 +41,28 @@ export default defineConfig({
       defineProject({
         test: {
           name: "unit",
-          environment: "node",
+          environment: "happy-dom",
           setupFiles: ["tests/browser/setup-browser-globals.js"],
           include: ["tests/unit/*.test.js"],
         },
       }),
-      // defineProject({
-      //   test: {
-      //     name: "browser",
-      //     include: ["tests/browser/*.browser.test.js"],
-      //     browser: {
-      //       enabled: true,
-      //       headless: true,
-      //       provider: playwright(),
-      //       instances: [{ browser: "chromium" }],
-      //       viewport: {
-      //         width: 800,
-      //         height: 600,
-      //       },
-      //     },
-      //   },
-      // }),
+      defineProject({
+        test: {
+          name: "browser",
+          testTimeout: 60000,
+          include: ["tests/browser/*.browser.test.js"],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [
+              {
+                browser: "chromium",
+              },
+            ],
+          },
+        },
+      }),
     ],
   },
 });

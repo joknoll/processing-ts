@@ -8,6 +8,7 @@ import PjsConsole from "../Helpers/PjsConsole.js";
 export default function setupParser(Processing, options) {
   var defaultScope = options.defaultScope,
     PConstants = defaultScope.PConstants,
+    PFont = defaultScope.PFont,
     aFunctions = options.aFunctions,
     Browser = options.Browser,
     document = Browser.document,

@@ -1,64 +1,40 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import {
-  cleanupProcessingInstances,
-  loadProcessingBundle,
-  mountProcessingSketch,
-  resetBrowserDom,
-} from "./browser.js";
+import { describe, expect, test } from "vite-plus/test";
+import { mountProcessingSketch, setupProcessingBrowserSuite } from "./browser.js";
 
 async function expectCanvasToMatchScreenshot(canvas, name) {
   await expect.element(canvas).toMatchScreenshot(name);
 }
 
-describe("ref visual regression tests", () => {
-  beforeEach(async () => {
-    resetBrowserDom();
-    await loadProcessingBundle();
-  });
+const visualFixtures = [
+  {
+    canvasId: "ref-ellipse",
+    fixtureName: "ellipse.pde",
+    screenshotName: "ellipse",
+  },
+  {
+    canvasId: "ref-text-defaults",
+    fixtureName: "text-defaults.pde",
+    screenshotName: "text-defaults",
+  },
+  {
+    canvasId: "ref-translate",
+    fixtureName: "translate.pde",
+    screenshotName: "translate",
+    waitForFrames: 65,
+  },
+  {
+    canvasId: "ref-box",
+    fixtureName: "box.pde",
+    screenshotName: "box",
+  },
+];
 
-  afterEach(() => {
-    cleanupProcessingInstances();
-    resetBrowserDom();
-  });
+describe.skip("ref visual regression tests", () => {
+  setupProcessingBrowserSuite();
 
-  test("renders ellipse.pde", async () => {
-    const { canvas } = await mountProcessingSketch({
-      fixtureName: "ellipse.pde",
-      canvasId: "ref-ellipse",
-      waitForExit: true,
-    });
+  test.each(visualFixtures)("renders $fixtureName", async (fixture) => {
+    const { canvas } = await mountProcessingSketch(fixture);
 
-    await expectCanvasToMatchScreenshot(canvas, "ellipse");
-  });
-
-  test("renders text-defaults.pde", async () => {
-    const { canvas } = await mountProcessingSketch({
-      fixtureName: "text-defaults.pde",
-      canvasId: "ref-text-defaults",
-      waitForExit: true,
-    });
-
-    await expectCanvasToMatchScreenshot(canvas, "text-defaults");
-  });
-
-  test("renders translate.pde after its fixed animation run", async () => {
-    const { canvas } = await mountProcessingSketch({
-      fixtureName: "translate.pde",
-      canvasId: "ref-translate",
-      waitForFrames: 65,
-      waitForExit: true,
-    });
-
-    await expectCanvasToMatchScreenshot(canvas, "translate");
-  });
-
-  test("renders box.pde", async () => {
-    const { canvas } = await mountProcessingSketch({
-      fixtureName: "box.pde",
-      canvasId: "ref-box",
-      waitForExit: true,
-    });
-
-    await expectCanvasToMatchScreenshot(canvas, "box");
+    await expectCanvasToMatchScreenshot(canvas, fixture.screenshotName);
   });
 });

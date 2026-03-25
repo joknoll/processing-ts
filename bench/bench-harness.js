@@ -1,7 +1,8 @@
-import Browser from "../lib/Browser.js";
 import testHarness from "../lib/TestHarness.js";
 import { createProcessing } from "../src/entry/index.js";
+import { createIsolatedTestBrowser } from "../tests/unit/helpers/test-browser.js";
 
+const Browser = createIsolatedTestBrowser();
 const Processing = createProcessing(Browser, testHarness);
 const runtimeSource = `
   void setup() {

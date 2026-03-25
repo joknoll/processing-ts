@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import { instrumentBrowser } from "./helpers/browser.js";
 import { instantiateSketch } from "./helpers/processing.js";

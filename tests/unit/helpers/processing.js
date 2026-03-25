@@ -1,10 +1,11 @@
 import path from "node:path";
 
-import Browser from "../../../lib/Browser.js";
 import testHarness from "../../../lib/TestHarness.js";
 import { createProcessing } from "../../../src/entry/index.js";
 import { readFixture } from "./fixtures.js";
+import { getSharedTestBrowser } from "./test-browser.js";
 
+const Browser = getSharedTestBrowser();
 const defaultProcessing = createProcessing(Browser, testHarness);
 
 function createTestProcessing(options = {}) {
