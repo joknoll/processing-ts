@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
+function readFixture(filePath) {
+  return fs.readFileSync(filePath, "utf8");
+}
+
 function loadFixturePaths(rootDir, extension = ".pde") {
   const files = [];
 
@@ -27,4 +31,11 @@ function loadFixturePaths(rootDir, extension = ".pde") {
   return files;
 }
 
-export { loadFixturePaths };
+function loadFixtureCases(rootDir, extension = ".pde") {
+  return loadFixturePaths(rootDir, extension).map((filePath) => ({
+    filePath,
+    name: path.relative(rootDir, filePath).split(path.sep).join("/"),
+  }));
+}
+
+export { loadFixtureCases, loadFixturePaths, readFixture };

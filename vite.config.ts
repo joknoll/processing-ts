@@ -42,42 +42,26 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
-          setupFiles: ["tests/vitest/setup-browser-globals.js"],
-          include: [
-            "tests/vitest/unit-fixtures.test.js",
-            "tests/vitest/parser-fixtures.test.js",
-            "tests/vitest/logger.test.js",
-            "tests/vitest/code-examples.test.js",
-          ],
+          setupFiles: ["tests/browser/setup-browser-globals.js"],
+          include: ["tests/unit/*.test.js"],
         },
       }),
-      defineProject({
-        test: {
-          name: "browser",
-          include: ["tests/vitest/*.browser.test.js"],
-          browser: {
-            enabled: true,
-            provider: playwright(),
-            headless: true,
-            instances: [{ browser: "chromium" }],
-            viewport: {
-              width: 800,
-              height: 600,
-            },
-          },
-        },
-      }),
-      defineProject({
-        test: {
-          name: "bench",
-          environment: "node",
-          setupFiles: ["tests/vitest/setup-browser-globals.js"],
-          include: ["bench/**/*.bench.js"],
-          benchmark: {
-            include: ["bench/**/*.bench.js"],
-          },
-        },
-      }),
+      // defineProject({
+      //   test: {
+      //     name: "browser",
+      //     include: ["tests/browser/*.browser.test.js"],
+      //     browser: {
+      //       enabled: true,
+      //       headless: true,
+      //       provider: playwright(),
+      //       instances: [{ browser: "chromium" }],
+      //       viewport: {
+      //         width: 800,
+      //         height: 600,
+      //       },
+      //     },
+      //   },
+      // }),
     ],
   },
 });

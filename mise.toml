@@ -1,5 +1,5 @@
 [tools]
-node = "latest"
+
 
 [env]
 _.path = ["tasks", "node_modules/.bin"]

@@ -29,22 +29,22 @@
     "check": "vp check",
     "prepublishOnly": "vp run build",
     "prepare": "vp config",
-    "test": "vp test",
-    "test:browser": "vitest run --project browser",
-    "test:browser:update": "vitest run --project browser -u",
-    "test:bench": "vitest bench --project bench",
-    "test:legacy": "node server.js",
-    "test:watch": "vitest --project unit"
+    "test": "vp test run --project unit",
+    "test:browser": "vp test run --project browser",
+    "test:browser:update": "vp test run --project browser -u",
+    "test:bench": "vp test bench --project bench",
+    "test:watch": "vp test watch --project unit"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@typescript/native-preview": "7.0.0-dev.20260316.1",
     "@vitest/browser-playwright": "^4.1.1",
     "bumpp": "^11.0.1",
+    "canvas": "^3.2.2",
+    "happy-dom": "^20.8.8",
     "playwright": "^1.58.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.1",
-    "vite-plus": "^0.1.11"
+    "vite-plus": "^0.1.14"
   },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {

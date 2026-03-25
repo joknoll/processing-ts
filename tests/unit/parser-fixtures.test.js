@@ -1,7 +1,7 @@
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { loadFixturePaths } from "./fixture-loader.js";
-import { compileFixture } from "./unit-harness.js";
+import { loadFixtureCases } from "./helpers/fixtures.js";
+import { compileFixture } from "./helpers/processing.js";
 
 const parserFixtureMetadata = {
   expectedFailures: {},
@@ -9,15 +9,11 @@ const parserFixtureMetadata = {
 };
 
 const parserRootDir = path.resolve(process.cwd(), "tests/parser");
-const parserFixtures = loadFixturePaths(parserRootDir).map((filePath) => {
-  const relativePath = path.relative(parserRootDir, filePath).split(path.sep).join("/");
-  return {
-    filePath,
-    name: relativePath,
-    expectedFailure: parserFixtureMetadata.expectedFailures[relativePath],
-    quarantined: parserFixtureMetadata.quarantined[relativePath],
-  };
-});
+const parserFixtures = loadFixtureCases(parserRootDir).map((fixture) => ({
+  ...fixture,
+  expectedFailure: parserFixtureMetadata.expectedFailures[fixture.name],
+  quarantined: parserFixtureMetadata.quarantined[fixture.name],
+}));
 
 describe("parser fixture compilation", () => {
   test("metadata only references known fixtures", () => {

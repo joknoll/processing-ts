@@ -1,9 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import Browser from "../../lib/Browser.js";
-import { createProcessing } from "../../src/entry/index.js";
+import { createTestProcessing } from "./helpers/processing.js";
 
-const Processing = createProcessing(Browser);
+const Processing = createTestProcessing();
 
 describe("Processing logger", () => {
   test("supports println output in module strict mode", () => {
