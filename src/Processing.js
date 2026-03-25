@@ -1,6 +1,7 @@
 import createEventHandlers from "./Helpers/eventHandlers.js";
 import createDrawLoopScheduler from "./Helpers/drawLoopScheduler.js";
 import createRedrawController from "./Helpers/redrawController.js";
+import createRedrawRenderers from "./Helpers/redrawRenderers.js";
 
 /**
  * Processing.js object
@@ -357,6 +358,34 @@ export default function (options, undef) {
       p: p,
       startTime: start,
       now: Date.now,
+    });
+    var redrawRenderers = createRedrawRenderers({
+      redrawController: redrawController,
+      getContext: function () {
+        return curContext;
+      },
+      getLineWidth: function () {
+        return lineWidth;
+      },
+      saveContext: saveContext,
+      restoreContext: restoreContext,
+      draw: function () {
+        p.draw();
+      },
+      resetContextCache: function () {
+        curContextCache = { attributes: {}, locations: {} };
+      },
+      resetSceneState: function () {
+        // Delete all the lighting states and the materials the
+        // user set in the last draw() call.
+        p.noLights();
+        p.lightFalloff(1, 0, 0);
+        p.shininess(1);
+        p.ambient(255, 255, 255);
+        p.specular(0, 0, 0);
+        p.emissive(0, 0, 0);
+        p.camera();
+      },
     });
 
     var drawLoopScheduler = createDrawLoopScheduler({
@@ -4158,33 +4187,9 @@ export default function (options, undef) {
      * @see noLoop
      * @see loop
      */
-    Drawing2D.prototype.redraw = function () {
-      redrawController.run(function () {
-        curContext.lineWidth = lineWidth;
-        saveContext();
-        p.draw();
-        restoreContext();
-      });
-    };
+    Drawing2D.prototype.redraw = redrawRenderers.redraw2D;
 
-    Drawing3D.prototype.redraw = function () {
-      redrawController.run(function () {
-        // even if the color buffer isn't cleared with background(),
-        // the depth buffer needs to be cleared regardless.
-        curContext.clear(curContext.DEPTH_BUFFER_BIT);
-        curContextCache = { attributes: {}, locations: {} };
-        // Delete all the lighting states and the materials the
-        // user set in the last draw() call.
-        p.noLights();
-        p.lightFalloff(1, 0, 0);
-        p.shininess(1);
-        p.ambient(255, 255, 255);
-        p.specular(0, 0, 0);
-        p.emissive(0, 0, 0);
-        p.camera();
-        p.draw();
-      });
-    };
+    Drawing3D.prototype.redraw = redrawRenderers.redraw3D;
 
     /**
      * Stops Processing from continuously executing the code within draw(). If loop() is
