@@ -1,43 +1,61 @@
 ﻿<!doctype html>
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Processing.js Performance Tests</title>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script>
-      google.load('visualization', '1', {'packages':['corechart']});
+      google.load("visualization", "1", { packages: ["corechart"] });
     </script>
     <script src="/dist/processing.iife.js"></script>
     <script src="tests.js"></script>
     <style>
-      .test  { border: solid 1px; margin: 5px; }
-      .title { margin-left: 5px; }
+      .test {
+        border: solid 1px;
+        margin: 5px;
+      }
+      .title {
+        margin-left: 5px;
+      }
     </style>
   </head>
   <body>
     <h1>Processing.js Performance Test Runner</h1>
-    <p>To start the tests click Start.  Each test is run in order (downloaded from the server).  Tests are run for a maximum number of frames (specified below), and the time recorded.</p>
+    <p>
+      To start the tests click Start. Each test is run in order (downloaded from the server). Tests
+      are run for a maximum number of frames (specified below), and the time recorded.
+    </p>
 
-    <p>Reference tests can be run from <a href="/ref" target="_blank">here.</a>
+    <p>Reference tests can be run from <a href="/ref" target="_blank">here.</a></p>
 
     <h3>Settings</h3>
-    <div>Run Tests: <select id="test-type" onchange="updateSelectedTests();">
-      <option value="2D,3D" selected="selected">2D and 3D</option>
-      <option value="2D">2D Only</option>
-      <option value="3D">3D Only</option>
-      <option value="Blend">Blend Only</option>
-      <option value="PImage">PImage Only</option>
-      <option value="PVector">PVector Only</option>
-      <option value="Crisp">Crisp</option>
-      <option value="Calibration">Calibration</option>
-    </select>&nbsp;
-    Iterations Per Test: <input type="text" size="4" id="iterations" onchange="updateIterations();">&nbsp;
-    <input onclick="runTests(selectedTests);" type="button" value="Start"></input><span id="testCount"></span></div>
+    <div>
+      Run Tests:
+      <select id="test-type" onchange="updateSelectedTests()">
+        <option value="2D,3D" selected="selected">2D and 3D</option>
+        <option value="2D">2D Only</option>
+        <option value="3D">3D Only</option>
+        <option value="Blend">Blend Only</option>
+        <option value="PImage">PImage Only</option>
+        <option value="PVector">PVector Only</option>
+        <option value="Crisp">Crisp</option>
+        <option value="Calibration">Calibration</option></select
+      >&nbsp; Iterations Per Test:
+      <input type="text" size="4" id="iterations" onchange="updateIterations()" />&nbsp;
+      <input onclick="runTests(selectedTests)" type="button" value="Start" /><span
+        id="testCount"
+      ></span>
+    </div>
 
-    <h3>Results [total time for <span id="curTest">0</span> tests: <span id="totalTime">0</span>ms] <button id="report" style="display:none" onclick="report();">Generate Report</button></h3>
-    <div id="status" style="margin-bottom: 10px; display: none;">Running... (this may take some time)</div>
+    <h3>
+      Results [total time for <span id="curTest">0</span> tests: <span id="totalTime">0</span>ms]
+      <button id="report" style="display: none" onclick="report()">Generate Report</button>
+    </h3>
+    <div id="status" style="margin-bottom: 10px; display: none">
+      Running... (this may take some time)
+    </div>
     <div id="results-chart"></div>
-    <div id="results" style="margin: 5px; padding-top: 10px;"></div>
+    <div id="results" style="margin: 5px; padding-top: 10px"></div>
     <div id="total"></div>
 
     <script>
@@ -46,23 +64,23 @@
       var finishedTests;
       var failedTests = 0;
       var totalTime = 0;
-      var total = document.getElementById('total');
-      total.innerHTML = '';
+      var total = document.getElementById("total");
+      total.innerHTML = "";
 
       updateSelectedTests();
 
       // Tolerance values and kernel for blur
       var iterationCount = 1000;
-      document.getElementById('iterations').value = iterationCount;
+      document.getElementById("iterations").value = iterationCount;
 
       function generateReport(tests) {
         var report = {
-                       testDate: Date.now(),
-                       userAgent: window.navigator.userAgent,
-                       data: []
-                     };
+          testDate: Date.now(),
+          userAgent: window.navigator.userAgent,
+          data: [],
+        };
 
-        for (var i=0; i < tests.length; i++) {
+        for (var i = 0; i < tests.length; i++) {
           if (tests[i].completed) {
             report.data.push(tests[i]);
           }
@@ -85,8 +103,8 @@
        * Set up the test run filters
        */
       function updateSelectedTests() {
-        var selectControl = document.getElementById('test-type');
-        var selectedTags = selectControl.value.split(',');
+        var selectControl = document.getElementById("test-type");
+        var selectedTags = selectControl.value.split(",");
 
         selectedTests = new Array();
         for (var i = 0; i < tests.length; ++i) {
@@ -102,16 +120,15 @@
           }
         }
 
-        var testCount = document.getElementById('testCount');
-        testCount.innerHTML = '&nbsp;(' + selectedTests.length + ' tests)';
+        var testCount = document.getElementById("testCount");
+        testCount.innerHTML = "&nbsp;(" + selectedTests.length + " tests)";
       }
-
 
       /**
        * Change how many times each perf test runs before reporting
        */
       function updateIterations() {
-        var newIterationCount = document.getElementById('iterations').value;
+        var newIterationCount = document.getElementById("iterations").value;
         if (newIterationCount) {
           iterationCount = parseInt(newIterationCount, 10);
         }
@@ -122,12 +139,12 @@
        */
       function download(file) {
         var req = new XMLHttpRequest();
-        req.open('GET', file + "?t=" + Date.now(), false);
+        req.open("GET", file + "?t=" + Date.now(), false);
         if (req.overrideMimeType) {
-          req.overrideMimeType('text/plain');
+          req.overrideMimeType("text/plain");
         }
         req.send(null);
-        if (req.status != 200 && req.status !=0) {
+        if (req.status != 200 && req.status != 0) {
           return null;
         } else {
           return req.responseText;
@@ -154,7 +171,7 @@
         }
 
         // Split out the canvas info in the comment:
-        var test = {name: testName, code: responseText};
+        var test = { name: testName, code: responseText };
         test.is3D = is3D(test.code);
         return test;
       }
@@ -164,45 +181,44 @@
        */
       function drawResultsChart() {
         var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn('string', 'Test');
-        dataTable.addColumn('number', 'Time per Frame (ms)');
+        dataTable.addColumn("string", "Test");
+        dataTable.addColumn("number", "Time per Frame (ms)");
         var test, i;
-        for (i=0; i<tests.length; i++) {
+        for (i = 0; i < tests.length; i++) {
           test = tests[i];
-          dataTable.addRow([test.path,
-                            test.time / (test.iterationOverride || iterationCount)]);
+          dataTable.addRow([test.path, test.time / (test.iterationOverride || iterationCount)]);
         }
 
-        var chart = new google.visualization.BarChart(document.getElementById('results-chart'));
-        chart.draw(dataTable,
-                   { title: 'Performance Test Results',
-                     width: 800,
-                     height: 600,
-                     legend: 'none',
-                     vAxis: {title: 'Test', textPosition: 'none'},
-                     hAxis: {title: 'Time per Frame (ms)'}
-                   });
+        var chart = new google.visualization.BarChart(document.getElementById("results-chart"));
+        chart.draw(dataTable, {
+          title: "Performance Test Results",
+          width: 800,
+          height: 600,
+          legend: "none",
+          vAxis: { title: "Test", textPosition: "none" },
+          hAxis: { title: "Time per Frame (ms)" },
+        });
       }
 
       /**
        * Run all performance tests
        */
       function runTests(tests) {
-        var results = document.getElementById('results');
-        results.innerHTML = '';
-        var total = document.getElementById('total');
-        total.innerHTML = '';
-        var chart = document.getElementById('results-chart');
-        chart.innerHTML = '';
+        var results = document.getElementById("results");
+        results.innerHTML = "";
+        var total = document.getElementById("total");
+        total.innerHTML = "";
+        var chart = document.getElementById("results-chart");
+        chart.innerHTML = "";
 
-        document.getElementById('report').style.display = "none";
+        document.getElementById("report").style.display = "none";
         finishedTests = null;
         failedTests = 0;
 
         totalTime = 0;
 
-        var buildCanvas = function(id, w, h) {
-          var c = document.createElement('canvas');
+        var buildCanvas = function (id, w, h) {
+          var c = document.createElement("canvas");
           c.id = id;
           c.width = w;
           c.height = h;
@@ -210,30 +226,47 @@
           return c;
         };
 
-        var link = function(name) {
-          return '<a href="' + name + '">' + name + '</a>';
+        var link = function (name) {
+          return '<a href="' + name + '">' + name + "</a>";
         };
 
-        var titleText = function(testNumber, testTotal, time, testName, testIterations, failMessage) {
-          return "Test (" + testNumber + "/" + testTotal + ") " + link(testName) +
-                 (failMessage ? " -- FAILED (" + failMessage + ")" : " -- Total Time for " + testIterations + " frames: <b>" + time + "ms</b>");
+        var titleText = function (
+          testNumber,
+          testTotal,
+          time,
+          testName,
+          testIterations,
+          failMessage,
+        ) {
+          return (
+            "Test (" +
+            testNumber +
+            "/" +
+            testTotal +
+            ") " +
+            link(testName) +
+            (failMessage
+              ? " -- FAILED (" + failMessage + ")"
+              : " -- Total Time for " + testIterations + " frames: <b>" + time + "ms</b>")
+          );
         };
 
         var tl = tests.length;
         var lastTest = 0;
         function nextTest(testNum) {
-
           if (testNum < tl) {
-            window.setTimeout(function() { runOne(testNum); }, 50);
+            window.setTimeout(function () {
+              runOne(testNum);
+            }, 50);
           } else {
             var passed = tl - failedTests;
             var info = "Completed " + passed + " of " + tl + " tests (" + failedTests + " failed).";
-            document.getElementById('status').innerHTML = info;
+            document.getElementById("status").innerHTML = info;
             total.innerHTML = info;
             finishedTests = tests;
 
-            document.getElementById('status').style.display = "none";
-            document.getElementById('report').style.display = "inline";
+            document.getElementById("status").style.display = "none";
+            document.getElementById("report").style.display = "inline";
 
             // sort the tests into failed and passed
             var sortedDivs = [];
@@ -242,16 +275,18 @@
               results.removeChild(results.firstChild);
             }
 
-            var failedDiv = document.createElement('div');
-            failedDiv.innerHTML = '<hr><h3>Failed ' + failedTests + ' of ' + (passed + failedTests) + '</h3>';
+            var failedDiv = document.createElement("div");
+            failedDiv.innerHTML =
+              "<hr><h3>Failed " + failedTests + " of " + (passed + failedTests) + "</h3>";
             results.appendChild(failedDiv);
 
-            var passDiv = document.createElement('div');
-            passDiv.innerHTML = '<hr><h3>Passed ' + passed + ' of ' + (passed + failedTests) + '</h3>';
+            var passDiv = document.createElement("div");
+            passDiv.innerHTML =
+              "<hr><h3>Passed " + passed + " of " + (passed + failedTests) + "</h3>";
             results.appendChild(passDiv);
 
             for (var i = 0; i < sortedDivs.length; i++) {
-              if (sortedDivs[i].className === 'failed') {
+              if (sortedDivs[i].className === "failed") {
                 failedDiv.appendChild(sortedDivs[i]);
               } else {
                 passDiv.appendChild(sortedDivs[i]);
@@ -259,8 +294,8 @@
             }
 
             if (failedDiv.childNodes.length === 0) {
-              var temp = document.createElement('p');
-              temp.innerHTML = 'No failed tests';
+              var temp = document.createElement("p");
+              temp.innerHTML = "No failed tests";
               failedDiv.appendChild(temp);
             }
 
@@ -276,21 +311,20 @@
 
           var test = getTest(tests[i].path);
           var iterCount = tests[i].iterationOverride || iterationCount;
-          var result = document.createElement('div');
+          var result = document.createElement("div");
           result.id = test.name;
-          var title = document.createElement('div');
+          var title = document.createElement("div");
           title.className = "title";
           result.appendChild(title);
           results.appendChild(result);
 
           if (test) {
-            var canvas = buildCanvas(test.name + '-canvas', test.width, test.height);
+            var canvas = buildCanvas(test.name + "-canvas", test.width, test.height);
             result.appendChild(canvas);
 
             // draw the current version from code, timing it
             var p;
             try {
-
               // Force the test to not loop--we'll do that.
               var code = "noLoop();\n" + test.code;
               p = new Processing(canvas, code);
@@ -298,10 +332,10 @@
               function runBenchmark() {
                 try {
                   var startTime = Date.now(),
-                      failed = false;
+                    failed = false;
 
                   for (var iters = 0; iters < iterCount; iters++) {
-                    if ( Date.now() - startTime > MAX_TEST_TIME ) {
+                    if (Date.now() - startTime > MAX_TEST_TIME) {
                       // Exceeded allowable test run time, fail and bail
                       failed = true;
                       failedTests++;
@@ -316,30 +350,44 @@
 
                   if (failed) {
                     result.className = "failed";
-                    title.innerHTML = titleText(i+1, tl, "-", test.name, iterCount,
-                                      "Test exceeded maximum test time (" + MAX_TEST_TIME + "ms), halted.");
+                    title.innerHTML = titleText(
+                      i + 1,
+                      tl,
+                      "-",
+                      test.name,
+                      iterCount,
+                      "Test exceeded maximum test time (" + MAX_TEST_TIME + "ms), halted.",
+                    );
                   } else {
                     result.className = "passed";
-                    title.innerHTML = titleText(i+1, tl, diff, test.name, iterCount);
+                    title.innerHTML = titleText(i + 1, tl, diff, test.name, iterCount);
                   }
-                  document.getElementById('totalTime').innerHTML = totalTime;
-                  document.getElementById('curTest').innerHTML = (i+1);
+                  document.getElementById("totalTime").innerHTML = totalTime;
+                  document.getElementById("curTest").innerHTML = i + 1;
 
                   // Mark this test run a success with time
                   tests[i].completed = true;
                   tests[i].time = diff;
                 } catch (e) {
                   result.className = "failed";
-                  title.innerHTML = titleText(i+1, tl, 0, test.name, iterCount, "Processing failed during execution: " + e.toString());
-                  nextTest(i+1);
+                  title.innerHTML = titleText(
+                    i + 1,
+                    tl,
+                    0,
+                    test.name,
+                    iterCount,
+                    "Processing failed during execution: " + e.toString(),
+                  );
+                  nextTest(i + 1);
                 }
                 var is3D = p.use3DContext;
               }
-              nextTest(i+1);
+              nextTest(i + 1);
               if (!p.draw) {
                 // preload present
-                var initInterval, attempts = 20;
-                initInterval = setInterval(function() {
+                var initInterval,
+                  attempts = 20;
+                initInterval = setInterval(function () {
                   if (p.draw) {
                     clearInterval(initInterval);
                     runBenchmark();
@@ -348,8 +396,15 @@
                   if (--attempts <= 0) {
                     clearInterval(initInterval);
                     result.className = "failed";
-                    title.innerHTML = titleText(i+1, tl, 0, test.name, iterCount, "Processing failed initialization");
-                    nextTest(i+1);
+                    title.innerHTML = titleText(
+                      i + 1,
+                      tl,
+                      0,
+                      test.name,
+                      iterCount,
+                      "Processing failed initialization",
+                    );
+                    nextTest(i + 1);
                     return;
                   }
                 }, 100);
@@ -360,23 +415,36 @@
               p = null;
             } catch (e) {
               result.className = "failed";
-              title.innerHTML = titleText(i+1, tl, 0, test.name, iterCount, "Processing failed: " + e.toString());
-              nextTest(i+1);
+              title.innerHTML = titleText(
+                i + 1,
+                tl,
+                0,
+                test.name,
+                iterCount,
+                "Processing failed: " + e.toString(),
+              );
+              nextTest(i + 1);
             }
           }
-        };
-        window.setTimeout(function() { runOne(0); }, 25);
-      };
+        }
+        window.setTimeout(function () {
+          runOne(0);
+        }, 25);
+      }
     </script>
 
     <!-- autorun -->
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        var loc = window.location.toString();
-        if(loc.indexOf("autorun=true") !== -1) {
-          runTests(selectedTests);
-        }
-      }, false);
+      document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+          var loc = window.location.toString();
+          if (loc.indexOf("autorun=true") !== -1) {
+            runTests(selectedTests);
+          }
+        },
+        false,
+      );
     </script>
   </body>
 </html>
