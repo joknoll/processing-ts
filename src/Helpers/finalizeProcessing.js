@@ -133,7 +133,7 @@ export default function finalizeProcessing(Processing, options) {
             "sketch.options." +
             i +
             " = " +
-            (typeof value === "string" ? '\"' + value + '\"' : "" + value) +
+            (typeof value === "string" ? '"' + value + '"' : "" + value) +
             ";\n";
         }
       }
@@ -224,9 +224,9 @@ export default function finalizeProcessing(Processing, options) {
         } else {
           callback(
             "",
-            "Unable to load pjs sketch: element with id \'" +
+            "Unable to load pjs sketch: element with id '" +
               filename.substring(1) +
-              "\' was not found",
+              "' was not found",
           );
         }
         return;

@@ -365,7 +365,7 @@ export default function setupParser(Processing, options) {
     // parentheses() = B, brackets[] = C and braces{} = A
     function splitToAtoms(code) {
       var atoms = [];
-      var items = code.split(/([\{\[\(\)\]\}])/);
+      var items = code.split(/([{[()\]}])/);
       var result = items[0];
 
       var stack = [];
@@ -452,7 +452,7 @@ export default function setupParser(Processing, options) {
     // also removes all comments
     var strings = [];
     var codeWoStrings = codeWoExtraCr.replace(
-      /("(?:[^"\\\n]|\\.)*")|('(?:[^'\\\n]|\\.)*')|(([\[\(=|&!\^:?]\s*)(\/(?![*\/])(?:[^\/\\\n]|\\.)*\/[gim]*)\b)|(\/\/[^\n]*\n)|(\/\*(?:(?!\*\/)(?:.|\n))*\*\/)/g,
+      /("(?:[^"\\\n]|\\.)*")|('(?:[^'\\\n]|\\.)*')|(([[(=|&!^:?]\s*)(\/(?![*/])(?:[^/\\\n]|\\.)*\/[gim]*)\b)|(\/\/[^\n]*\n)|(\/\*(?:(?!\*\/)(?:.|\n))*\*\/)/g,
       function (all, quoted, aposed, regexCtx, prefix, regex, singleComment, comment) {
         var index;
         if (quoted || aposed) {
@@ -699,7 +699,7 @@ export default function setupParser(Processing, options) {
         return "" + next;
       });
       // (int)??? -> __int_cast(???)
-      s = s.replace(/\(int\)([^,\]\)\}\?\:\*\+\-\/\^\|\%\&\~<\>\=]+)/g, function (all, arg) {
+      s = s.replace(/\(int\)([^,\])}?:*+\-/^|%&~<>=]+)/g, function (all, arg) {
         var trimmed = trimSpaces(arg);
         return trimmed.untrim("__int_cast(" + trimmed.middle + ")");
       });
@@ -707,7 +707,7 @@ export default function setupParser(Processing, options) {
       s = s.replace(/\bsuper(\s*"B\d+")/g, "$$superCstr$1").replace(/\bsuper(\s*\.)/g, "$$super$1");
       // 000.43->0.43 and 0010f->10, but not 0010
       s = s.replace(
-        /\b0+((\d*)(?:\.[\d*])?(?:[eE][\-\+]?\d+)?[fF]?)\b/,
+        /\b0+((\d*)(?:\.[\d*])?(?:[eE][-+]?\d+)?[fF]?)\b/,
         function (all, numberWo0, intPart) {
           if (numberWo0 === intPart) {
             return all;
@@ -733,7 +733,7 @@ export default function setupParser(Processing, options) {
       //   pixels.length => pixels.getLength()
       //   pixels = ar => pixels.set(ar) | pixels => pixels.toArray()
       s = s.replace(
-        /\bpixels\b\s*(("C(\d+)")|\.length)?(\s*=(?!=)([^,\]\)\}]+))?/g,
+        /\bpixels\b\s*(("C(\d+)")|\.length)?(\s*=(?!=)([^,\])}]+))?/g,
         function (all, indexOrLength, index, atomIndex, equalsPart, rightSide) {
           if (index) {
             var atom = atoms[atomIndex];
@@ -1332,7 +1332,7 @@ export default function setupParser(Processing, options) {
         metadata += className + ".$interfaces = [" + resolvedInterfaces.join(", ") + "];\n";
       }
       metadata += className + ".$isInterface = true;\n";
-      metadata += className + ".$methods = [\'" + this.methodsNames.join("\', \'") + "\'];\n";
+      metadata += className + ".$methods = ['" + this.methodsNames.join("', '") + "'];\n";
 
       sortByWeight(this.innerClasses);
       for (i = 0, l = this.innerClasses.length; i < l; ++i) {
@@ -1354,7 +1354,7 @@ export default function setupParser(Processing, options) {
         "(function() {\n" +
         "function " +
         className +
-        "() { throw \'Unable to create the interface\'; }\n" +
+        "() { throw 'Unable to create the interface'; }\n" +
         staticDefinitions +
         metadata +
         "return " +
@@ -2240,7 +2240,7 @@ export default function setupParser(Processing, options) {
 
   function preprocessCode(aCode, sketch) {
     // Parse out @pjs directive, if any.
-    var dm = new RegExp(/\/\*\s*@pjs\s+((?:[^\*]|\*+[^\*\/])*)\*\//g).exec(aCode);
+    var dm = new RegExp(/\/\*\s*@pjs\s+((?:[^*]|\*+[^*/])*)\*\//g).exec(aCode);
     if (dm && dm.length === 2) {
       // masks contents of a JSON to be replaced later
       // to protect the contents from further parsing

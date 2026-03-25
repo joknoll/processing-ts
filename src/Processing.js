@@ -4907,7 +4907,7 @@ export default function (options, undef) {
       if (val instanceof Array) {
         var ret = [];
         for (var i = 0; i < val.length; i++) {
-          if (typeof val[i] === "string" && !/^\s*[+\-]?\d+\s*$/.test(val[i])) {
+          if (typeof val[i] === "string" && !/^\s*[+-]?\d+\s*$/.test(val[i])) {
             ret.push(0);
           } else {
             ret.push(intScalar(val[i], radix));
