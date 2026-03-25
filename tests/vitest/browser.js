@@ -32,7 +32,7 @@ export async function loadTextFixture(relativePath) {
 }
 
 export async function loadRefFixture(name) {
-  return loadTextFixture(`test/ref/${name}`);
+  return loadTextFixture(`tests/ref/${name}`);
 }
 
 export function createCanvas(options = {}) {

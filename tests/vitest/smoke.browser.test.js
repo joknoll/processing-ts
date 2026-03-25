@@ -60,7 +60,7 @@ describe("browser bundle smoke tests", () => {
 
   test("instantiates a sketch compiled from an existing PDE fixture", async () => {
     const canvas = createCanvas();
-    const source = await loadTextFixture("test/ref/ellipse.pde");
+    const source = await loadTextFixture("tests/ref/ellipse.pde");
     const sketch = window.Processing.compile(source);
 
     new window.Processing(canvas, sketch);

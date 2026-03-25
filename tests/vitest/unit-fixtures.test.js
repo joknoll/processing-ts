@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { loadFixturePaths } from "./fixture-loader.js";
 import { runUnitFixture } from "./unit-harness.js";
 
-const unitRoot = path.resolve(process.cwd(), "test/unit");
+const unitRoot = path.resolve(process.cwd(), "tests/unit");
 const fixtures = loadFixturePaths(unitRoot).map((filePath) => ({
   filePath,
   name: path.relative(unitRoot, filePath),

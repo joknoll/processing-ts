@@ -15,7 +15,7 @@ function compileFixture(filePath) {
 function runUnitFixture(filePath, options = {}) {
   const canvas = Browser.document.createElement("canvas");
   const source = fs.readFileSync(filePath, "utf8");
-  const rootDir = options.rootDir ?? path.resolve(process.cwd(), "test/unit");
+  const rootDir = options.rootDir ?? path.resolve(process.cwd(), "tests/unit");
   const testName = path.relative(rootDir, filePath);
 
   testHarness.prep(testName);

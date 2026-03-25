@@ -8,7 +8,7 @@ const parserFixtureMetadata = {
   quarantined: {},
 };
 
-const parserRootDir = path.resolve(process.cwd(), "test/parser");
+const parserRootDir = path.resolve(process.cwd(), "tests/parser");
 const parserFixtures = loadFixturePaths(parserRootDir).map((filePath) => {
   const relativePath = path.relative(parserRootDir, filePath).split(path.sep).join("/");
   return {
