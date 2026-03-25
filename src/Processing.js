@@ -1,3 +1,5 @@
+import createEventHandlers from "./Helpers/eventHandlers.js";
+
 /**
  * Processing.js object
  */
@@ -128,34 +130,7 @@ export default function (options, undef) {
     ////////////////////////////////////////////////////////////////////////////
     // JavaScript event binding and releasing
     ////////////////////////////////////////////////////////////////////////////
-    var eventHandlers = [];
-    function attachEventHandler(elem, type, fn) {
-      if (elem.addEventListener) {
-        elem.addEventListener(type, fn, false);
-      } else {
-        elem.attachEvent("on" + type, fn);
-      }
-      eventHandlers.push({ elem: elem, type: type, fn: fn });
-    }
-
-    function detachEventHandler(eventHandler) {
-      var elem = eventHandler.elem,
-        type = eventHandler.type,
-        fn = eventHandler.fn;
-      if (elem.removeEventListener) {
-        elem.removeEventListener(type, fn, false);
-      } else if (elem.detachEvent) {
-        elem.detachEvent("on" + type, fn);
-      }
-    }
-
-    function detachEventHandlersByType(element, types) {
-      eventHandlers.forEach(function (eventHandler) {
-        if (types.indexOf(eventHandler.type) > -1 && eventHandler.elem == element) {
-          detachEventHandler(eventHandler);
-        }
-      });
-    }
+    var eventHandlers = createEventHandlers();
 
     function removeFirstArgument(args) {
       return Array.prototype.slice.call(args, 1);
@@ -168,15 +143,14 @@ export default function (options, undef) {
     p.Char = p.Character = Char;
 
     // add in the Processing API functions
-    eventHandlers = [];
     extend.withCommonFunctions(p);
     extend.withMath(p);
     extend.withProxyFunctions(p, removeFirstArgument);
     extend.withTouch(
       p,
       curElement,
-      attachEventHandler,
-      detachEventHandlersByType,
+      eventHandlers.attach,
+      eventHandlers.detachByType,
       document,
       PConstants,
     );
@@ -4327,10 +4301,7 @@ export default function (options, undef) {
       }
 
       // clean up all event handling
-      var i = eventHandlers.length;
-      while (i--) {
-        detachEventHandler(eventHandlers[i]);
-      }
+      eventHandlers.detachAll();
       curSketch.onExit();
     };
 
@@ -12686,13 +12657,13 @@ export default function (options, undef) {
 
       // 2) looping status is handled per page, based on the pauseOnBlur @pjs directive
       if (curSketch.options.pauseOnBlur) {
-        attachEventHandler(window, "focus", function () {
+        eventHandlers.attach(window, "focus", function () {
           if (doLoop) {
             p.loop();
           }
         });
 
-        attachEventHandler(window, "blur", function () {
+        eventHandlers.attach(window, "blur", function () {
           if (doLoop && loopStarted) {
             p.noLoop();
             doLoop = true; // make sure to keep this true after the noLoop call
@@ -12704,9 +12675,9 @@ export default function (options, undef) {
       // if keyboard events should be handled globally, the listeners should
       // be bound to the document window, rather than to the current canvas
       var keyTrigger = curSketch.options.globalKeyEvents ? window : curElement;
-      attachEventHandler(keyTrigger, "keydown", handleKeydown);
-      attachEventHandler(keyTrigger, "keypress", handleKeypress);
-      attachEventHandler(keyTrigger, "keyup", handleKeyup);
+      eventHandlers.attach(keyTrigger, "keydown", handleKeydown);
+      eventHandlers.attach(keyTrigger, "keypress", handleKeypress);
+      eventHandlers.attach(keyTrigger, "keyup", handleKeyup);
 
       // Step through the libraries that were attached at doc load...
       for (var i in Processing.lib) {
