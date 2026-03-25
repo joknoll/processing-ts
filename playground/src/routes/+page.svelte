@@ -19,7 +19,7 @@
     };
 
     const exampleModules = import.meta.glob(
-        "../../../test/code-examples/*.pde",
+        "../../../tests/code-examples/*.pde",
         {
             query: "?raw",
             import: "default",
