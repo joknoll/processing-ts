@@ -1,0 +1,25 @@
+[tools]
+node = "latest"
+
+[env]
+_.path = ["tasks", "node_modules/.bin"]
+
+[task_config]
+includes = ["tasks"]
+
+[tasks.clean]
+description = "Clean project"
+run = ["rm -rf node_modules dist playground/node_modules playground/build"]
+
+[tasks.play]
+description = "Run playground"
+run = [
+  "bun run build",
+  "cd playground && bun install",
+  "cd playground && bun run build",
+  "cd playground && bun run preview",
+]
+
+[tasks.setup]
+description = "Install project dependencies and browser test runtime"
+run = ["pnpm install", "playwright install chromium"]

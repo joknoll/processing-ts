@@ -1,0 +1,58 @@
+{
+  "name": "processing-ts",
+  "version": "0.0.0",
+  "description": "A Processing.js TypeScript port",
+  "homepage": "https://github.com/joknoll/processing-ts#readme",
+  "bugs": {
+    "url": "https://github.com/joknoll/processing-ts/issues"
+  },
+  "license": "MIT",
+  "author": "Johannes Knoll <git@joknoll.de>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joknoll/processing-ts.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "prepublishOnly": "vp run build",
+    "prepare": "vp config",
+    "test": "vp test",
+    "test:browser": "vitest run --project browser",
+    "test:browser:update": "vitest run --project browser -u",
+    "test:bench": "vitest bench --project bench",
+    "test:legacy": "node server.js",
+    "test:watch": "vitest --project unit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260316.1",
+    "@vitest/browser-playwright": "^4.1.1",
+    "bumpp": "^11.0.1",
+    "playwright": "^1.58.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.1",
+    "vite-plus": "^0.1.11"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js"
+}
