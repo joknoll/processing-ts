@@ -25,8 +25,4 @@ run = [
 
 [tasks.setup]
 description = "Install project dependencies and browser test runtime"
-run = [
-  "vp install",
-  "vp pack",
-  "playwright install chromium",
-]
+run = ["vp install", "vp pack", "playwright install chromium"]

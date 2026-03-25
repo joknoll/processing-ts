@@ -14,7 +14,9 @@ describe("event lifecycle", () => {
         testName: "touch cleanup",
       });
 
-      const touchStartHandler = canvas.__listeners.find((listener) => listener.type === "touchstart");
+      const touchStartHandler = canvas.__listeners.find(
+        (listener) => listener.type === "touchstart",
+      );
 
       expect(touchStartHandler).toBeDefined();
       expect(canvas.__listeners.some((listener) => listener.type === "mousemove")).toBe(true);
@@ -27,8 +29,12 @@ describe("event lifecycle", () => {
         preventDefault() {},
       });
 
-      expect(canvas.__removedListeners.some((listener) => listener.type === "mousemove")).toBe(true);
-      expect(canvas.__removedListeners.some((listener) => listener.type === "mousedown")).toBe(true);
+      expect(canvas.__removedListeners.some((listener) => listener.type === "mousemove")).toBe(
+        true,
+      );
+      expect(canvas.__removedListeners.some((listener) => listener.type === "mousedown")).toBe(
+        true,
+      );
       expect(canvas.__listeners.some((listener) => listener.type === "mousemove")).toBe(false);
       expect(canvas.__listeners.some((listener) => listener.type === "mousedown")).toBe(false);
 
@@ -49,15 +55,19 @@ describe("event lifecycle", () => {
       });
 
       expect(canvas.__listeners.length).toBeGreaterThan(0);
-      expect(browser.document.__listeners.some((listener) => listener.type === "mousewheel")).toBe(true);
+      expect(browser.document.__listeners.some((listener) => listener.type === "mousewheel")).toBe(
+        true,
+      );
 
       sketch.exit();
 
-      expect(canvas.__removedListeners.some((listener) => listener.type === "mousemove")).toBe(true);
-      expect(canvas.__removedListeners.some((listener) => listener.type === "keydown")).toBe(true);
-      expect(browser.document.__removedListeners.some((listener) => listener.type === "mousewheel")).toBe(
+      expect(canvas.__removedListeners.some((listener) => listener.type === "mousemove")).toBe(
         true,
       );
+      expect(canvas.__removedListeners.some((listener) => listener.type === "keydown")).toBe(true);
+      expect(
+        browser.document.__removedListeners.some((listener) => listener.type === "mousewheel"),
+      ).toBe(true);
       expect(
         browser.document.__removedListeners.some((listener) => listener.type === "DOMMouseScroll"),
       ).toBe(true);
