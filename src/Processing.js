@@ -1,4 +1,6 @@
 import createEventHandlers from "./Helpers/eventHandlers.js";
+import createDrawLoopScheduler from "./Helpers/drawLoopScheduler.js";
+import createRedrawController from "./Helpers/redrawController.js";
 
 /**
  * Processing.js object
@@ -240,10 +242,7 @@ export default function (options, undef) {
       currentStrokeColor = 0xff000000,
       isStrokeDirty = true,
       lineWidth = 1,
-      loopStarted = false,
       renderSmooth = false,
-      doLoop = true,
-      looping = 0,
       curRectMode = PConstants.CORNER,
       curEllipseMode = PConstants.CENTER,
       normalX = 0,
@@ -268,15 +267,11 @@ export default function (options, undef) {
       colorModeZ = 255,
       pathOpen = false,
       mouseDragging = false,
-      pmouseXLastFrame = 0,
-      pmouseYLastFrame = 0,
       curColorMode = PConstants.RGB,
       curTint = null,
       curTint3d = null,
       getLoaded = false,
       start = Date.now(),
-      timeSinceLastFPS = start,
-      framesSinceLastFPS = 0,
       textcanvas,
       curveBasisMatrix,
       curveToBezierMatrix,
@@ -357,6 +352,33 @@ export default function (options, undef) {
         PConstants.F12,
         PConstants.META,
       ];
+
+    var redrawController = createRedrawController({
+      p: p,
+      startTime: start,
+      now: Date.now,
+    });
+
+    var drawLoopScheduler = createDrawLoopScheduler({
+      window: window,
+      intervalMs: curMsPerFrame,
+      resetFrameRateState: redrawController.resetFrameRateState,
+      onDrawFrame: function () {
+        p.redraw();
+      },
+      onFrameStart: function () {
+        curSketch.onFrameStart();
+      },
+      onFrameEnd: function () {
+        curSketch.onFrameEnd();
+      },
+      onLoop: function () {
+        curSketch.onLoop();
+      },
+      onPause: function () {
+        curSketch.onPause();
+      },
+    });
 
     // User can only have MAX_LIGHTS lights
     var lightCount = 0;
@@ -4136,66 +4158,32 @@ export default function (options, undef) {
      * @see noLoop
      * @see loop
      */
-    function redrawHelper() {
-      var sec = (Date.now() - timeSinceLastFPS) / 1000;
-      framesSinceLastFPS++;
-      var fps = framesSinceLastFPS / sec;
-
-      // recalculate FPS every half second for better accuracy.
-      if (sec > 0.5) {
-        timeSinceLastFPS = Date.now();
-        framesSinceLastFPS = 0;
-        p.__frameRate = fps;
-      }
-
-      p.frameCount++;
-    }
-
     Drawing2D.prototype.redraw = function () {
-      redrawHelper();
-
-      curContext.lineWidth = lineWidth;
-      var pmouseXLastEvent = p.pmouseX,
-        pmouseYLastEvent = p.pmouseY;
-      p.pmouseX = pmouseXLastFrame;
-      p.pmouseY = pmouseYLastFrame;
-
-      saveContext();
-      p.draw();
-      restoreContext();
-
-      pmouseXLastFrame = p.mouseX;
-      pmouseYLastFrame = p.mouseY;
-      p.pmouseX = pmouseXLastEvent;
-      p.pmouseY = pmouseYLastEvent;
+      redrawController.run(function () {
+        curContext.lineWidth = lineWidth;
+        saveContext();
+        p.draw();
+        restoreContext();
+      });
     };
 
     Drawing3D.prototype.redraw = function () {
-      redrawHelper();
-
-      var pmouseXLastEvent = p.pmouseX,
-        pmouseYLastEvent = p.pmouseY;
-      p.pmouseX = pmouseXLastFrame;
-      p.pmouseY = pmouseYLastFrame;
-      // even if the color buffer isn't cleared with background(),
-      // the depth buffer needs to be cleared regardless.
-      curContext.clear(curContext.DEPTH_BUFFER_BIT);
-      curContextCache = { attributes: {}, locations: {} };
-      // Delete all the lighting states and the materials the
-      // user set in the last draw() call.
-      p.noLights();
-      p.lightFalloff(1, 0, 0);
-      p.shininess(1);
-      p.ambient(255, 255, 255);
-      p.specular(0, 0, 0);
-      p.emissive(0, 0, 0);
-      p.camera();
-      p.draw();
-
-      pmouseXLastFrame = p.mouseX;
-      pmouseYLastFrame = p.mouseY;
-      p.pmouseX = pmouseXLastEvent;
-      p.pmouseY = pmouseYLastEvent;
+      redrawController.run(function () {
+        // even if the color buffer isn't cleared with background(),
+        // the depth buffer needs to be cleared regardless.
+        curContext.clear(curContext.DEPTH_BUFFER_BIT);
+        curContextCache = { attributes: {}, locations: {} };
+        // Delete all the lighting states and the materials the
+        // user set in the last draw() call.
+        p.noLights();
+        p.lightFalloff(1, 0, 0);
+        p.shininess(1);
+        p.ambient(255, 255, 255);
+        p.specular(0, 0, 0);
+        p.emissive(0, 0, 0);
+        p.camera();
+        p.draw();
+      });
     };
 
     /**
@@ -4218,10 +4206,7 @@ export default function (options, undef) {
      * @see loop
      */
     p.noLoop = function () {
-      doLoop = false;
-      loopStarted = false;
-      clearInterval(looping);
-      curSketch.onPause();
+      drawLoopScheduler.stop();
     };
 
     /**
@@ -4233,26 +4218,7 @@ export default function (options, undef) {
      * @see noLoop
      */
     p.loop = function () {
-      if (loopStarted) {
-        return;
-      }
-
-      timeSinceLastFPS = Date.now();
-      framesSinceLastFPS = 0;
-
-      looping = window.setInterval(function () {
-        try {
-          curSketch.onFrameStart();
-          p.redraw();
-          curSketch.onFrameEnd();
-        } catch (e_loop) {
-          window.clearInterval(looping);
-          throw e_loop;
-        }
-      }, curMsPerFrame);
-      doLoop = true;
-      loopStarted = true;
-      curSketch.onLoop();
+      drawLoopScheduler.start();
     };
 
     /**
@@ -4270,9 +4236,10 @@ export default function (options, undef) {
     p.frameRate = function (aRate) {
       curFrameRate = aRate;
       curMsPerFrame = 1000 / curFrameRate;
+      drawLoopScheduler.setInterval(curMsPerFrame);
 
       // clear and reset interval
-      if (doLoop) {
+      if (drawLoopScheduler.shouldRun()) {
         p.noLoop();
         p.loop();
       }
@@ -4287,7 +4254,7 @@ export default function (options, undef) {
      */
     p.exit = function () {
       // cleanup
-      window.clearInterval(looping);
+      drawLoopScheduler.shutdown();
       removeInstance(p.externals.canvas.id);
       delete curElement.onmousedown;
 
@@ -12658,16 +12625,13 @@ export default function (options, undef) {
       // 2) looping status is handled per page, based on the pauseOnBlur @pjs directive
       if (curSketch.options.pauseOnBlur) {
         eventHandlers.attach(window, "focus", function () {
-          if (doLoop) {
+          if (drawLoopScheduler.shouldRun()) {
             p.loop();
           }
         });
 
         eventHandlers.attach(window, "blur", function () {
-          if (doLoop && loopStarted) {
-            p.noLoop();
-            doLoop = true; // make sure to keep this true after the noLoop call
-          }
+          drawLoopScheduler.suspend();
           resetKeyPressed();
         });
       }
@@ -12733,7 +12697,7 @@ export default function (options, undef) {
           resetContext();
 
           if (processing.draw) {
-            if (!doLoop) {
+            if (!drawLoopScheduler.shouldRun()) {
               processing.redraw();
             } else {
               processing.loop();
