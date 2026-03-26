@@ -1,6 +1,6 @@
 {
   "name": "processing-ts",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A Processing.js TypeScript port",
   "homepage": "https://github.com/joknoll/processing-ts#readme",
   "bugs": {
