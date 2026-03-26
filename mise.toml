@@ -2,7 +2,7 @@
 
 
 [env]
-_.path = ["tasks", "node_modules/.bin"]
+_.path = ["tasks"]
 
 [task_config]
 includes = ["tasks"]
