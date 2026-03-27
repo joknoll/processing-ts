@@ -2,7 +2,7 @@
     import CodeMirror from "svelte-codemirror-editor";
     import { javascript } from "@codemirror/lang-javascript";
     import { onMount } from "svelte";
-    import { createProcessing } from "processing-ts";
+    import { Processing } from "processing-ts/browser";
 
     type ProcessingSketch = {
         exit?: () => void;
@@ -56,33 +56,6 @@
     let activeSketch: ProcessingSketch | null = null;
     let consoleObserver: MutationObserver | null = null;
     let bodyObserver: MutationObserver | null = null;
-
-    function createBrowserAdapter() {
-        return {
-            isDomPresent: true,
-            navigator: window.navigator,
-            window,
-            document,
-            ajax(url: string) {
-                const xhr = new XMLHttpRequest();
-                xhr.open("GET", url, false);
-                if (xhr.overrideMimeType) {
-                    xhr.overrideMimeType("text/plain");
-                }
-                xhr.setRequestHeader(
-                    "If-Modified-Since",
-                    "Fri, 01 Jan 1960 00:00:00 GMT",
-                );
-                xhr.send(null);
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    throw new Error(
-                        `XMLHttpRequest failed, status code ${xhr.status}`,
-                    );
-                }
-                return xhr.responseText;
-            },
-        };
-    }
 
     function clearNativeConsole() {
         const logger = processing?.logger;
@@ -181,17 +154,9 @@
     }
 
     onMount(() => {
-        try {
-            processing = createProcessing(
-                createBrowserAdapter(),
-            ) as ProcessingConstructor;
-            status = "processing-ts loaded.";
-            runSketch();
-        } catch (cause) {
-            error = cause instanceof Error ? cause.message : String(cause);
-            status = "Failed to initialize processing-ts.";
-            consoleHtml = `<strong>Initialization error</strong><br>${error}`;
-        }
+        processing = Processing as ProcessingConstructor;
+        status = "processing-ts loaded.";
+        runSketch();
 
         return () => {
             stopSketch();

@@ -15,7 +15,7 @@ export default defineConfig({
 
   pack: [
     {
-      entry: ["src/entry/index.js"],
+      entry: ["src/entry/index.js", "src/entry/browser-esm.js"],
       format: ["esm"],
       dts: false,
       clean: true,
