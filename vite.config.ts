@@ -15,9 +15,9 @@ export default defineConfig({
 
   pack: [
     {
-      entry: ["src/entry/index.js", "src/entry/browser-esm.js"],
+      entry: ["src/entry/index.ts", "src/entry/browser-esm.ts", "src/entry/svelte.ts"],
       format: ["esm"],
-      dts: false,
+      dts: true,
       clean: true,
       platform: "neutral",
       target: false,

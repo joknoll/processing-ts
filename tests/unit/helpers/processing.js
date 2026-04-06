@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import testHarness from "../../../lib/TestHarness.js";
-import { createProcessing } from "../../../src/entry/index.js";
+import { createProcessing } from "../../../src/entry/index.ts";
 import { readFixture } from "./fixtures.js";
 import { getSharedTestBrowser } from "./test-browser.js";
 

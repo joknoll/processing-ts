@@ -1,22 +1,7 @@
 <script lang="ts">
     import CodeMirror from "svelte-codemirror-editor";
     import { javascript } from "@codemirror/lang-javascript";
-    import { onMount } from "svelte";
-    import { Processing } from "processing-ts/browser";
-
-    type ProcessingSketch = {
-        exit?: () => void;
-    };
-
-    type ProcessingConstructor = {
-        new (canvas: HTMLCanvasElement, source: string): ProcessingSketch;
-        compile(source: string): { sourceCode?: string };
-        logger?: {
-            BufferArray?: string[];
-            javaconsole?: HTMLDivElement;
-            hideconsole?: () => void;
-        };
-    };
+    import { createProcessingSketch } from "processing-ts/svelte";
 
     const exampleModules = import.meta.glob(
         "../../../tests/code-examples/*.pde",
@@ -43,106 +28,7 @@
 
     let source = $state(defaultExample?.code ?? "");
     let selectedExample = $state(defaultExample?.id ?? "");
-    let compilePreview = $state(
-        "// Processing.compile(...) output will appear here",
-    );
-    let consoleHtml = $state("<em>Run the sketch to see println output.</em>");
-    let status = $state("Initializing processing-ts...");
-    let error = $state("");
-
-    let canvas: HTMLCanvasElement;
-    let consolePanel: HTMLDivElement;
-    let processing: ProcessingConstructor | null = null;
-    let activeSketch: ProcessingSketch | null = null;
-    let consoleObserver: MutationObserver | null = null;
-    let bodyObserver: MutationObserver | null = null;
-
-    function clearNativeConsole() {
-        const logger = processing?.logger;
-        if (logger?.BufferArray) {
-            logger.BufferArray.length = 0;
-        }
-        if (logger?.javaconsole) {
-            logger.javaconsole.innerHTML = "";
-        }
-        logger?.hideconsole?.();
-    }
-
-    function mirrorConsole(consoleElement: Element | null) {
-        if (!consoleElement) {
-            consoleHtml = "<em>No console output yet.</em>";
-            return;
-        }
-
-        const update = () => {
-            consoleHtml =
-                (consoleElement as HTMLElement).innerHTML ||
-                "<em>No console output yet.</em>";
-            consolePanel?.scrollTo({ top: consolePanel.scrollHeight });
-        };
-
-        update();
-        consoleObserver?.disconnect();
-        consoleObserver = new MutationObserver(update);
-        consoleObserver.observe(consoleElement, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-        });
-    }
-
-    function connectConsoleMirror() {
-        mirrorConsole(
-            processing?.logger?.javaconsole ??
-                document.querySelector(".pjsconsole .console"),
-        );
-
-        bodyObserver?.disconnect();
-        bodyObserver = new MutationObserver(() => {
-            const consoleElement =
-                processing?.logger?.javaconsole ??
-                document.querySelector(".pjsconsole .console");
-            if (consoleElement) {
-                mirrorConsole(consoleElement);
-            }
-        });
-        bodyObserver.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
-    }
-
-    function stopSketch() {
-        activeSketch?.exit?.();
-        activeSketch = null;
-        consoleObserver?.disconnect();
-        bodyObserver?.disconnect();
-        clearNativeConsole();
-    }
-
-    function runSketch() {
-        if (!processing) {
-            status = "processing-ts is still loading.";
-            return;
-        }
-
-        stopSketch();
-        error = "";
-        consoleHtml = "<em>Running sketch...</em>";
-
-        try {
-            compilePreview =
-                processing.compile(source).sourceCode ??
-                "// compile returned no sourceCode";
-            activeSketch = new processing(canvas, source);
-            connectConsoleMirror();
-            status = "Sketch is running.";
-        } catch (cause) {
-            error = cause instanceof Error ? cause.message : String(cause);
-            status = "Sketch failed.";
-            consoleHtml = `<strong>Runtime error</strong><br>${error}`;
-        }
-    }
+    const runner = createProcessingSketch(() => source);
 
     function selectExample(value: string) {
         selectedExample = value;
@@ -152,16 +38,6 @@
             source = example.code;
         }
     }
-
-    onMount(() => {
-        processing = Processing as ProcessingConstructor;
-        status = "processing-ts loaded.";
-        runSketch();
-
-        return () => {
-            stopSketch();
-        };
-    });
 </script>
 
 <svelte:head>
@@ -192,7 +68,7 @@
                         {/each}
                     </select>
                 </label>
-                <button class="primary" onclick={runSketch}>Run sketch</button>
+                <button class="primary" onclick={runner.run}>Run sketch</button>
                 <button
                     class="ghost"
                     onclick={() => selectExample(defaultExample?.id ?? "")}
@@ -215,13 +91,13 @@
         <div class="surface">
             <div class="surface-head">
                 <h2>Draw</h2>
-                <p>{status}</p>
+                <p>{$runner.status}</p>
             </div>
             <div class="canvas-wrap">
-                <canvas bind:this={canvas}></canvas>
+                <canvas {@attach runner.attachCanvas}></canvas>
             </div>
-            {#if error}
-                <pre class="error">{error}</pre>
+            {#if $runner.error}
+                <pre class="error">{$runner.error}</pre>
             {/if}
         </div>
 
@@ -230,8 +106,8 @@
                 <h2>Console</h2>
                 <p>Mirrored from Processing println output</p>
             </div>
-            <div class="console-wrap" bind:this={consolePanel}>
-                <div class="console-output">{@html consoleHtml}</div>
+            <div class="console-wrap" {@attach runner.attachConsole}>
+                <div class="console-output">{@html $runner.consoleHtml}</div>
             </div>
         </div>
 
@@ -240,7 +116,7 @@
                 <h2>Compiled Preview</h2>
                 <p>Generated via <code>Processing.compile(...)</code></p>
             </div>
-            <pre>{compilePreview}</pre>
+            <pre>{$runner.compilePreview}</pre>
         </div>
     </section>
 </div>

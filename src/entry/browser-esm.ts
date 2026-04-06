@@ -1,13 +1,14 @@
 import { createProcessing } from "./index.js";
+import type { ProcessingStatic } from "../types/shared.js";
 
-export const Processing =
+export const Processing: ProcessingStatic | null =
   typeof window !== "undefined"
     ? createProcessing({
         isDomPresent: true,
         navigator,
         window,
         document,
-        ajax(url) {
+        ajax(url: string) {
           const xhr = new XMLHttpRequest();
           xhr.open("GET", url, false);
           if (xhr.overrideMimeType) {
